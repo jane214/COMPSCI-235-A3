@@ -1,0 +1,26 @@
+<aside id="sidebar">
+
+    <header>
+        <h1>Famous movie that you must see</h1>
+    </header>
+
+    {% for movie in selected_movies %}
+        <div id="article-container">
+            <a href="{{ movie.hyperlink }}" >
+                <p>{{ movie.title }}, ({{ movie.year }}).</p>
+            </a>
+            <br/>
+            <br/>
+            <hr/>
+            <br/>
+            <br/>
+            <div id="article-description">
+
+                <p>{{ movie.description}}</p>
+                <p>{{ movie.vote}}</p>
+            </div>
+        </div>
+        <br/>
+    {% endfor %}
+
+</aside>

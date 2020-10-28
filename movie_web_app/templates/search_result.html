@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<main id = "main">
+<div>
+    {% for movie in movies %}
+        <p>{{movie.title}}, by {{movie.year}}, {{movie.director}}, {{movie.vote}}, {{movie.rate}}</p>
+    {% endfor %}
+
+</div>
+</main>
+{% endblock %}
