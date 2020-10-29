@@ -113,6 +113,7 @@ def remove_from_watch_list(movie_id, username, repo: AbstractRepository):
 
 def get_movies_by_id(id_list, repo: AbstractRepository):
     movies = repo.get_movies_by_id(id_list)
+    print("get movies by is", movies)
 
     # Convert Articles to dictionary form.
     movies_as_dict = movies_to_dict(movies)
@@ -186,7 +187,7 @@ def user_to_dict(user: User):
     user_dict = {
         'username': user.user_name,
         'password': user.password,
-        'watch_list': user.watch_list.watch_list
+        # 'watch_list': list()#user.watch_list.watch_list
     }
     return user_dict
 
@@ -217,3 +218,5 @@ def dict_to_movies(dict):
     movie.hyperlink = dict.hyperlink
     # Note there's no comments or tags.
     return movie
+
+# print("hi")

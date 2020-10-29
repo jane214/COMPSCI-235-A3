@@ -68,9 +68,10 @@ class SqlAlchemyRepository(AbstractRepository):
             scm.commit()
 
     def get_user(self, username) -> User:
+        user_name = username.lower()
         user = None
         try:
-            user = self._session_cm.session.query(User).filter_by(_username=username).one()
+            user = self._session_cm.session.query(User).filter_by(_User__user_name=user_name).one()
         except NoResultFound:
             # Ignore any exception and return None.
             pass
@@ -117,7 +118,7 @@ class SqlAlchemyRepository(AbstractRepository):
             return movies
         else:
             # Return articles matching target_date; return an empty list if there are no matches.
-            movies = self._session_cm.session.query(Movie).filter(Movie._year == target_year).all()
+            movies = self._session_cm.session.query(Movie).filter(Movie._Movie__year == target_year).all()
             return movies
 
     def get_number_of_movies(self):
@@ -136,12 +137,12 @@ class SqlAlchemyRepository(AbstractRepository):
         movies = self._session_cm.session.query(Movie).filter(Movie._id.in_(id_list)).all()
         return movies
 
-    def get_movie_ids_for_genre(self, new_genre: str):
+    def get_movie_ids_for_genre(self, genre_name: str):
         movie_ids = []
 
         # Use native SQL to retrieve article ids, since there is no mapped class for the article_tags table.
-        row = self._session_cm.session.execute('SELECT id FROM tags WHERE name = :tag_name',
-                                               {'tag_name': new_genre}).fetchone()
+        row = self._session_cm.session.execute('SELECT id FROM genres WHERE name = :genre_name',
+                                               {'genre_name': genre_name}).fetchone()
 
         if row is None:
             # No tag with the name tag_name - create an empty list.
@@ -151,7 +152,7 @@ class SqlAlchemyRepository(AbstractRepository):
 
             # Retrieve article ids of articles associated with the tag.
             movie_ids = self._session_cm.session.execute(
-                'SELECT article_id FROM article_tags WHERE tag_id = :tag_id ORDER BY article_id ASC',
+                'SELECT movie_id FROM movie_genres WHERE genre_id = :genre_id ORDER BY movie_id ASC',
                 {'genre_id': genre_id}
             ).fetchall()
             movie_ids = [id[0] for id in movie_ids]
@@ -259,6 +260,27 @@ class SqlAlchemyRepository(AbstractRepository):
         pass
 
 
+def get_tag_records():
+    genre_records = list()
+    genre_key = 0
+    for genre in genres.keys():
+        genre_key = genre_key + 1
+
+        genre_records.append((genre_key, genre.genre_name))
+    return genre_records
+
+
+def movie_genres_generator():
+    movie_genres_key = 0
+    genre_key = 0
+
+    for genre in genres.keys():
+        genre_key = genre_key + 1
+        for movie_key in genres[genre]:
+            movie_genres_key = movie_genres_key + 1
+            yield movie_genres_key, movie_key.id, genre_key
+
+
 def generic_generator(filename, post_process=None):
     with open(filename) as infile:
         reader = csv.reader(infile)
@@ -281,11 +303,10 @@ def process_user(user_row):
     return user_row
 
 
-def populate(engine: Engine, data_path, data_filename):
+def populate_user(engine: Engine, data_path):
     conn = engine.raw_connection()
     cursor = conn.cursor()
-    conn.commit()
-    conn.close()
+
     insert_users = """
         INSERT INTO users (
         id, username, password)
@@ -297,26 +318,45 @@ def populate(engine: Engine, data_path, data_filename):
         id, user_id, movie_id, comment, timestamp)
         VALUES (?, ?, ?, ?, ?)"""
     cursor.executemany(insert_comments, generic_generator(os.path.join(data_path, 'comments.csv')))
+
+    insert_tags = """
+        INSERT OR REPLACE INTO genres (
+        id, name)
+        VALUES (?, ?)"""
+    cursor.executemany(insert_tags, get_tag_records())
+
+    insert_article_tags = """
+        INSERT OR REPLACE INTO movie_genres (
+        id, movie_id, genre_id)
+        VALUES (?, ?, ?)"""
+    cursor.executemany(insert_article_tags, movie_genres_generator())
+
     conn.commit()
     conn.close()
+
+
+def populate_data(session_factory, data_path, data_filename):
+    global genres
+    genres = dict()
 
     filename = os.path.join(data_path, data_filename)
     movie_file_reader = MovieFileCSVReader(filename)
     movie_file_reader.read_csv_file()
     session = session_factory()
-
-    for movie in movie_file_reader.dataset_of_movies:
-        print(movie)
+    genres = movie_file_reader.genres_dict
+    # print(len(movie_file_reader.dataset_of_genres))
+    movie_list = list(movie_file_reader.dataset_of_movies)
+    movie_list.sort(key=lambda movie: movie.year)
+    for movie in movie_list:
         session.add(movie)
 
     for actor in movie_file_reader.dataset_of_actors:
         session.add(actor)
 
-    for genre in movie_file_reader.dataset_of_genres:
-        session.add(genre)
+    # for genre in movie_file_reader.dataset_of_genres:
+    #     session.add(genre)
 
     for director in movie_file_reader.dataset_of_directors:
         session.add(director)
 
     session.commit()
-    # pass

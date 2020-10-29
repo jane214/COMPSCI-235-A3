@@ -19,7 +19,7 @@ def get_years(repo: AbstractRepository):
 
 def get_random_movies(quantity, repo: AbstractRepository):
     movie_count = repo.get_number_of_movies()
-    print("movie count",movie_count)
+    print("movie count", movie_count)
 
     if quantity >= movie_count:
         # Reduce the quantity of ids to generate if the repository has an insufficient number of articles.

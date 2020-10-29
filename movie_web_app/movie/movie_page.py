@@ -119,11 +119,11 @@ movies_blueprint = Blueprint(
 
 @movies_blueprint.route('/movies_by_date', methods=['GET'])
 def movies_by_date():
-    if 'username' not in session:
-        username = None
-    else:
-        username = session['username']
-
+    # if 'username' not in session:
+    #     username = None
+    # else:
+    #     username = session['username']
+    username = None
     id_list = []
     # print("usernmae", username)
     if username is not None:
@@ -227,20 +227,21 @@ def movies_by_date():
 
 @movies_blueprint.route('/movies_by_genre', methods=['GET'])
 def movies_by_genre():
-    if 'username' not in session:
-        username = None
-    else:
-        username = session['username']
-
+    # if 'username' not in session:
+    #     username = None
+    # else:
+    #     username = session['username']
+    username = None
     id_list = []
+    user = None
     # print("usernmae", username)
-    if username is not None:
-        user = services.get_user(username, repo.repo_instance)
-
-        for movie in user['watch_list']:
-            id_list.append(movie.id)
-    else:
-        user = None
+    # if username is not None:
+    #     user = services.get_user(username, repo.repo_instance)
+    #
+    #     for movie in user['watch_list']:
+    #         id_list.append(movie.id)
+    # else:
+    #     user = None
     movies_per_page = 10
     # Read query parameters.
     genre_name = request.args.get('genre')
@@ -291,7 +292,7 @@ def movies_by_genre():
         movie['view_comment_url'] = url_for('movies_bp.movies_by_genre', genre=genre_name, cursor=cursor,
                                             view_comments_for=movie['id'])
         movie['add_comment_url'] = url_for('movies_bp.comment_on_movies', movie=movie['id'], cursor=cursor,
-                                           page='genre')
+                                           page='genre', genre=genre_name)
         # if movie not in;
         # print("movie id", movie['id'])
         if user is not None:
@@ -466,7 +467,7 @@ def remove_movie_watch_list_show():
 @login_required
 def watch_list_dates():
     username = session['username']
-    cursor= request.args.get('cursor')
+    cursor = request.args.get('cursor')
     movie_id = request.args.get('movie_id')
     services.add_to_watch_list(movie_id, username, repo.repo_instance)
 
@@ -485,6 +486,9 @@ def comment_on_movies():
     form = CommentForm()
     page = request.args.get('page')
     cursor = request.args.get('cursor')
+    genre_name = request.args.get('genre')
+    print("page", page)
+    print("genre", genre_name)
     if form.validate_on_submit():
         # Successful POST, i.e. the comment text has passed data validation.
         # Extract the movies id, representing the commented movies, from the form.
@@ -498,10 +502,12 @@ def comment_on_movies():
 
         # Cause the web browser to display the page of all movies that have the same date as the commented movies,
         # and display all comments, including the new comment.
-        if page == "genre":
-            return redirect(url_for('movies_bp.movies_by_genre', genre=movie['genre'], view_comments_for=movie_id,
-                                    cursor=cursor))
-        return redirect(url_for('movies_bp.movies_by_date', year=int(movie['year']), view_comments_for=movie_id))
+
+        # print("oage", page)
+        # if page == "genre":
+        return redirect(url_for('movies_bp.movies_by_genre', genre=genre_name, view_comments_for=movie_id,
+                                cursor=cursor))
+        # return redirect(url_for('movies_bp.movies_by_date', year=int(movie['year']), view_comments_for=movie_id))
 
     if request.method == 'GET':
         # Request is a HTTP GET to display the form.

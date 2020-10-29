@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Iterable
 
 
 class ModelException(Exception):
@@ -29,6 +29,10 @@ class Actor:
     @property
     def movies(self):
         return self._movies
+
+    @movies.setter
+    def movies(self, new_list):
+        self._movies = new_list
 
     def add_movies(self, movie):
         self._movies.append(movie)
@@ -72,8 +76,7 @@ class Director:
     def movies(self):
         return self._movies
 
-    @movies.setter
-    def movies(self, movie):
+    def add_movies(self, movie):
         self._movies.append(movie)
 
     def __repr__(self):
@@ -229,10 +232,7 @@ class Movie:
 
     def __lt__(self, other):
         return self.year < other.year
-        # if isinstance(other, Movie):
-        #     string1 = self.concate()
-        #     string2 = other.concate()
-        #     return string1 < string2
+
 
     def __str__(self):
         return f"<Movie {self.__movie_name}, {self.__year}, {self.id}>"
@@ -314,7 +314,7 @@ class Review:
         else:
             return (self.__movie == other.__movie and
                     self.__review_text == other.__review_text and
-                    self.__rating_number == other.__rating_number and
+                    # self.__rating_number == other.__rating_number and
                     self.__timestamp == other.__timestamp)
 
 
@@ -324,7 +324,7 @@ class Genre:
             self.__genre_name = None
         else:
             self.__genre_name = genre_name.strip()
-        self._movie = []
+        self._tagged_movies = []
 
     @property
     def genre_name(self) -> str:
@@ -339,11 +339,19 @@ class Genre:
 
     @property
     def movie_list(self):
-        return self._movie
+        return self._tagged_movies
+
+    @movie_list.setter
+    def movie_list(self, new_list):
+        self._tagged_movies = new_list
+
+    @property
+    def tagged_movies(self) -> Iterable[Movie]:
+        return iter(self._tagged_movies)
 
     def add_movie(self, new_movie: Movie):
-        if new_movie not in self._movie:
-            self._movie.append(new_movie)
+        if new_movie not in self._tagged_movies:
+            self._tagged_movies.append(new_movie)
 
     def __repr__(self):
         return f"<Genre {self.__genre_name}>"
@@ -359,6 +367,10 @@ class Genre:
 
     def __hash__(self):
         return hash(self.genre_name)
+
+    def number_of_movies(self):
+        return len(self._tagged_movies)
+
 
 
 class User:

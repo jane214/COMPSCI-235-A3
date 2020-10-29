@@ -51,8 +51,9 @@ def create_app(test_config=None):
             # Generate mappings that map domain model classes to the database tables.
             map_model_to_tables()
             datafile = 'Data1000Movies.csv'
-            # session_factory = sessionmaker(autocommit=False, autoflush=True, bind=database_engine)
-            database_repository.populate(database_engine, data_path, datafile)
+            session_factory = sessionmaker(autocommit=False, autoflush=True, bind=database_engine)
+            database_repository.populate_data(session_factory,  data_path, datafile)
+            database_repository.populate_user(database_engine, data_path)
 
         else:
             # Solely generate mappings that map domain model classes to the database tables.

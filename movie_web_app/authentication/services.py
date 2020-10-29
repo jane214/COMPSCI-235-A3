@@ -56,6 +56,6 @@ def user_to_dict(user: User):
     user_dict = {
         'username': user.user_name,
         'password': user.password,
-        'watch_list': user.watch_list
+        # 'watch_list': user.watch_list
     }
     return user_dict
