@@ -32,8 +32,8 @@ movies = Table(
     Column('title', String(255), nullable=False),
     Column('description', String(1024), nullable=False),
     Column('hyperlink', String(255), nullable=True),
-    Column('rating', Float, nullable=False),
-    Column('voting', Integer, nullable=False),
+    Column('rating', Float),
+    Column('voting', Integer),
     Column('director_id', ForeignKey('directors.id')),
     Column('running_time', Integer)
     # Column('image_hyperlink', String(255), nullable=False)

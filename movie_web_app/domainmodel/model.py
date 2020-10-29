@@ -233,7 +233,6 @@ class Movie:
     def __lt__(self, other):
         return self.year < other.year
 
-
     def __str__(self):
         return f"<Movie {self.__movie_name}, {self.__year}, {self.id}>"
 
@@ -370,7 +369,6 @@ class Genre:
 
     def number_of_movies(self):
         return len(self._tagged_movies)
-
 
 
 class User:
