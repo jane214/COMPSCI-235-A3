@@ -197,16 +197,53 @@ class SqlAlchemyRepository(AbstractRepository):
         pass
 
     def get_movies(self, movie_name):
-        pass
+        movies = self._session_cm.session.query(Movie).filter(Movie._Movie__movie_name == movie_name).all()
+        return movies
 
     def get_movies_for_actor(self, name):
-        pass
+        movie_ids = []
+
+        # Use native SQL to retrieve article ids, since there is no mapped class for the article_tags table.
+        row = self._session_cm.session.execute('SELECT id FROM actors WHERE name = :name',
+                                               {'name': name}).fetchone()
+
+        if row is None:
+            # No tag with the name tag_name - create an empty list.
+            movie_ids = list()
+        else:
+            actor_id = row[0]
+
+            # Retrieve article ids of articles associated with the tag.
+            movie_ids = self._session_cm.session.execute(
+                'SELECT movie_id FROM movie_actors WHERE actor_id = :actor_id ORDER BY rating ASC',
+                {'actor_id': actor_id}
+            ).fetchall()
+            movie_ids = [id[0] for id in movie_ids]
+        return movie_ids
 
     def get_movies_for_genre(self, name):
         pass
 
     def get_movies_for_director(self, name):
-        pass
+        movie_ids = []
+
+        # Use native SQL to retrieve article ids, since there is no mapped class for the article_tags table.
+        row = self._session_cm.session.execute('SELECT id FROM directors WHERE name = :name',
+                                               {'name': name}).fetchone()
+
+        if row is None:
+            # No tag with the name tag_name - create an empty list.
+            movie_ids = list()
+        else:
+            actor_id = row[0]
+
+            # Retrieve article ids of articles associated with the tag.
+            movie_ids = self._session_cm.session.execute(
+                'SELECT movie_id FROM movies WHERE director_id = :actor_id ORDER BY rating ASC',
+                {'actor_id': actor_id}
+            ).fetchall()
+            movie_ids = [id[0] for id in movie_ids]
+        return movie_ids
 
     def add_to_watch_list(self, user: User, movie: Movie):
         pass

@@ -122,10 +122,15 @@ def get_movies_by_id(id_list, repo: AbstractRepository):
 
 
 def get_search_info(name, repo: AbstractRepository):
-    movies = repo.get_movies_for_actor(name)
+    movies_ids = repo.get_movies_for_actor(name)
+    movies = []
+    for id in movies_ids:
+        movies.append(repo.get_movie(id))
     movies += repo.get_movies(name)
-    movies += repo.get_movies_for_genre(name)
-    movies += repo.get_movies_for_director(name)
+    movies_ids += repo.get_movie_ids_for_genre(name)
+    for id in movies_ids:
+        movies.append(repo.get_movie(id))
+    # movies += repo.get_movies_for_director(name)
     movies = set(movies)
     movies = list(movies)
     movies.sort(key=lambda movie: movie.rating, reverse=True)

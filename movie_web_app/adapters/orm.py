@@ -36,7 +36,6 @@ movies = Table(
     Column('voting', Integer),
     Column('director_id', ForeignKey('directors.id')),
     Column('running_time', Integer)
-    # Column('image_hyperlink', String(255), nullable=False)
 )
 
 genres = Table(
@@ -98,8 +97,7 @@ def map_model_to_tables():
         '_review': relationship(model.Review, backref='_Review__movie'),
         '_rating': movies.c.rating,
         '_votes': movies.c.voting,
-        '_runtime_minutes': movies.c.running_time,
-        # _runtime_minutes
+        '_runtime_minutes': movies.c.running_time
     })
 
     mapper(model.Actor, actors, properties={

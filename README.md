@@ -9,7 +9,7 @@ A Web application that demonstrates use of Python's Flask framework. The applica
 **Installation via requirements.txt**
 
 ```shell
-$ cd COMPSCI-235-A2
+$ cd COMPSCI-235-A3
 $ py -3 -m venv venv
 $ venv\Scripts\activate
 $ pip install -r requirements.txt
@@ -45,7 +45,7 @@ Testing requires that file *COMPSCI-235/tests/conftest.py* be edited to set the 
 
 E.g. 
 
-'''TEST_DATA_PATH = "C:/Users/zhong/Desktop/compsci-235-A2/test/data"'''
+'''TEST_DATA_PATH = "C:/Users/zhong/Desktop/compsci-235-A2/test/data/database"'''
 
 please make sure you use the full path
 you can first into test file

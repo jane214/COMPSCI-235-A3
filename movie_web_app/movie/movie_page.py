@@ -475,7 +475,7 @@ def watch_list_dates():
     return redirect(url_for('movies_bp.movies_by_date', year=int(movie['year']), cursor=cursor, username=username))
 
 
-@movies_blueprint.route('/comment', methods=['GET', 'POST'])
+@movies_blueprint.route('/comment_on_movies', methods=['GET', 'POST'])
 @login_required
 def comment_on_movies():
     # Obtain the username of the currently logged in user.
@@ -489,6 +489,8 @@ def comment_on_movies():
     genre_name = request.args.get('genre')
     print("page", page)
     print("genre", genre_name)
+    print("cursor", cursor)
+    print(request.args)
     if form.validate_on_submit():
         # Successful POST, i.e. the comment text has passed data validation.
         # Extract the movies id, representing the commented movies, from the form.
@@ -504,9 +506,7 @@ def comment_on_movies():
         # and display all comments, including the new comment.
 
         # print("oage", page)
-        # if page == "genre":
-        return redirect(url_for('movies_bp.movies_by_genre', genre=genre_name, view_comments_for=movie_id,
-                                cursor=cursor))
+        return redirect(url_for('home_bp.home'))
         # return redirect(url_for('movies_bp.movies_by_date', year=int(movie['year']), view_comments_for=movie_id))
 
     if request.method == 'GET':
@@ -532,6 +532,9 @@ def comment_on_movies():
         handler_url=url_for('movies_bp.comment_on_movies'),
         selected_movies=utilities.get_selected_movies(),
         genre_urls=utilities.get_genres_and_urls(),
+        genre=genre_name,
+        cursor=cursor,
+        page=page
     )
 
 
